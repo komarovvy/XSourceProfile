@@ -72,10 +72,11 @@ class BallAbsorber():
         
         self.mask_step = mask_step
         mask_dim = round(2 * self.radius / self.mask_step)
-        self.mask_dim = mask_dim + mask_dim % 2
+        self.mask_dim = mask_dim + 1
+        #self.mask_dim = mask_dim + mask_dim % 2
         
         if self.mu:
-            self.T_mask = generate_T_mask(dim=self.mask_dim, step=self.mask_step, 
+            self.T_mask = generate_T_mask(dim=self.mask_dim, step=self.mask_step,
                                           mu=self.mu, R=self.radius)
 
     def __str__(self):
@@ -97,4 +98,3 @@ if __name__ == '__main__':
     cs = ax.pcolormesh(np.log(test_ball.T_mask))
     cbar = fig.colorbar(cs)
     plt.show()
-    

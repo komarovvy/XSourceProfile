@@ -84,7 +84,7 @@ def cimd_set_int(cell_lenght=0.001, Imax=1.8e6, diam=0.3, subbining=2):
 # cbar = fig.colorbar(cs)
 # plt.show()
 
-def cidg_set_int(cell_length=1, Imax=1.8e6, sigmai=55, sigmaj=55, sigma_cutoff=3., subbining=2, cor_cof=0.0):
+def cidg_set_int(cell_length=1, Imax=1.8e6, sigmai=50, sigmaj=50, sigma_cutoff=3., subbining=2, cor_cof=0.0):
     # print(f'The source grid cell length {source.cell_length} mm')
     assert type(subbining) == int
     if sigmai >= sigmaj:
@@ -106,10 +106,10 @@ def cidg_set_int(cell_length=1, Imax=1.8e6, sigmai=55, sigmaj=55, sigma_cutoff=3
     grid_I = grid_I.reshape(grid_dimention, grid_dimention)
     grid_I = grid_I * i_cell
     return grid_I
-fig, ax = plt.subplots()
-cs = ax.pcolormesh(cidg_set_int())
-cbar = fig.colorbar(cs)
-plt.show()
+# fig, ax = plt.subplots()
+# cs = ax.pcolormesh(cidg_set_int())
+# cbar = fig.colorbar(cs)
+# plt.show()
 
 def table_set_int(source, Iij_2D_arr=(0.,0.,0., 0.,1.8e6,0., 0.,0.,0.)):
     print(f'{SOURCE_TYPE["Tab"]["description"]} source type is not implenented...')
