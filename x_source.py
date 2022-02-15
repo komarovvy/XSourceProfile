@@ -6,6 +6,28 @@ from x_constants import PHASE_TO_MU
 
 
 def cipg_set_int(source, Imax=1.8e6, sigma=0.055, sigma_cutoff=3., subbining=2):
+    '''
+    Calculate intensities for Central Isometric P??? Gaussian X-ray source
+     on a source grid.
+     
+    Parameters
+    ----------
+    source : TYPE
+        DESCRIPTION.
+    Imax : TYPE, optional
+        DESCRIPTION. The default is 1.8e6.
+    sigma : TYPE, optional
+        DESCRIPTION. The default is 0.055.
+    sigma_cutoff : TYPE, optional
+        DESCRIPTION. The default is 3..
+    subbining : TYPE, optional
+        DESCRIPTION. The default is 2.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+    '''
     #print(f'The source grid cell length {source.cell_length} mm')
     assert type(subbining) == int
     grid_length = 2 * sigma * sigma_cutoff
