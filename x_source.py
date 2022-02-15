@@ -151,4 +151,3 @@ if __name__ == '__main__':
         print(f'({test_source.coord_to_index(x)},{test_source.coord_to_index(y)})', end='; ')
     print('\nFinish!')
         
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!")
