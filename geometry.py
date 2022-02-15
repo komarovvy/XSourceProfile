@@ -4,16 +4,15 @@ from scipy.spatial.transform import Rotation as R
 class Vec3D():
     # x=0., y=0.,z=0.
     # 3 coordinates, rotation, projection
-    def __init__(self, x=None, y=None, z=None, coord=None):
-        if coord is None and all(isinstance(comp, (int, float)) for comp in (x, y, z)): 
-            self.coord = np.array([x, y, z])    
-        elif all(comp is None for comp in (x, y, z)) and \
-             all(isinstance(val, (int, float)) for val in coord) and\
-             len(coord) == 3:
-            self.coord = np.array(coord)
+    def __init__(self, vec_xyz=None):
+        #TODO remove redundant paremeters, tuple-like coord vector in ehough!
+        if vec_xyz is None: 
+            raise ValueError('Coordinates of the 3D vector must be specified as a list.')
+        elif all(isinstance(val, (int, float)) for val in vec_xyz) and\
+             len(vec_xyz) == 3:
+            self.coord = tuple(vec_xyz)
         else:
-            raise ValueError('Coordinates of the vector must be provided wheather as xyz-components or as a list.')
-        
+            raise ValueError('Coordinates of the vector must be provided as a list of floats of length 3.')
 
     @property
     def x(self):
@@ -28,7 +27,7 @@ class Vec3D():
         return self.coord[2]
 
     def __str__(self, prec=2):
-        return f"vector x, y, z = ({self.x:.{prec}f}, {self.y:.{prec}f}, {self.z:.{prec}f})"        
+        return f"(x={self.x:.{prec}f}, y={self.y:.{prec}f}, z={self.z:.{prec}f})"        
 
     def rot_euler(self, ax_seq=None, angles=None, in_degrees=True):
         if not (isinstance(ax_seq, str) and 3 >= len(ax_seq) >= 1):
@@ -45,7 +44,7 @@ class Vec3D():
     
     @property
     def proj_yz(self):
-        return self.y, self.z
+        return VecYZ(self.y, self.z)
 
 class VecYZ():
     '''

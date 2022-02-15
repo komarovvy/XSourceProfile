@@ -47,7 +47,7 @@ class BallAbsorber():
                        mu=None, material='Fe', wavelength='MoKaw', 
                        mask_step=1.e-3):
         if type(shift) == tuple and len(shift) == 3:
-            self.shift = shift
+            self.shift = Vec3D(shift)
         else:
             raise ValueError('Sample shift must be a tuple of the length 3')
         #TODO add checkings
