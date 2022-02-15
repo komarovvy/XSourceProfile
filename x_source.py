@@ -141,22 +141,28 @@ class GridXRaySourceProfile():
         else:
             raise ValueError(f'Unknown units for length: {unit}')
         fig, ax = plt.subplots()
+        ax.invert_xaxis()
+        ax.set_aspect('equal', adjustable='box')
         #TODO change when make it non-uniform and shifted!
-        r_min = self.index_to_c_coord(VecYZ(0, 0))
-        r_max = self.index_to_c_coord(self.grid_dim - VecYZ(1, 1))
-        y_range = np.linspace(r_min.y, r_max.y, self.grid_dim.y) * unit_transform_factor
-        z_range = np.linspace(r_min.z, r_max.z, self.grid_dim.z) * unit_transform_factor
+        r_min = self.index_to_c_coord(VecYZ(-0.5, -0.5))
+        r_max = self.index_to_c_coord(self.grid_dim - VecYZ(0.5, 0.5))
+        y_range = np.linspace(r_min.y, r_max.y, self.grid_dim.y + 1) * unit_transform_factor
+        z_range = np.linspace(r_min.z, r_max.z, self.grid_dim.z + 1) * unit_transform_factor
         cs = ax.pcolormesh(y_range, z_range, self.grid_I)
+        plt.scatter(0., 0., color='red', marker= '+')
+        plt.scatter(0., 100., color='red', marker= '^')
+        plt.scatter(100., 0., color='red', marker= '<')
         cbar = fig.colorbar(cs)
         plt.show()
 
     
 if __name__ == '__main__':
-    test_source = GridXRaySourceProfile()
+    test_source = GridXRaySourceProfile(cell_len=0.02, source_param={'Imax': 100., 'sigma':0.06, 'sigma_cutoff':1.})
     test_i = VecYZ(17, 17)
     print(f'Indexes {test_i} corresponds to coordinates of center {test_source.index_to_c_coord(test_i)}')
     print(f' with corners at:')
     print(f' {test_source.index_to_l_coord(test_i)} and {test_source.index_to_u_coord(test_i)}')
     
+    #test_source.show_grid()
     test_source.show_I('um')
         
