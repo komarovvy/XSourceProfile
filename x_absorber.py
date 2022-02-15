@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from x_constants import PHASE_TO_MU, MATERIALS, WAVELENGTH
-from geometry import Vec3D, RectYZ
+from geometry import Vec3D, RectYZ, EulerAng
 
 
 #TODO put to appropriate place!
@@ -89,8 +89,9 @@ class BallAbsorber():
     def calc_T_integral(self, rect=RectYZ(yl=0., zl=0., yu=0.1, zu=0.1)):
         pass      
     
-    def rotate_euler(self, om, phi, chi):
-        #calc self.rot_shift
+    #TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    def rotate_euler(self, eu_ang: EulerAng):
+        #calc self.rot_shift from eu_ang and self.shift
         pass
     
     #TODO make i<->r transforms using self.rot_shift value !!!
