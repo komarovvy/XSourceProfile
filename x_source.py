@@ -3,10 +3,9 @@ import matplotlib.pyplot as plt
 from collections import namedtuple
 
 from x_constants import PHASE_TO_MU
+from geometry import VecYZ
 
 
-#TODO make an object?
-tuple_xy = namedtuple('Tuple_2D', ['x', 'y']) 
 
 
 def cipg_set_int(cell_length=0.01, Imax=1.8e6, sigma=0.055, sigma_cutoff=3., subbining=2):
@@ -70,7 +69,7 @@ def cipg_set_int(cell_length=0.01, Imax=1.8e6, sigma=0.055, sigma_cutoff=3., sub
     #print(f'Generated grid of {source.grid_I.shape} with sum intensity {np.sum(source.grid_I)}')
     #print('Grid of partial intensities:\n', source.grid_I)
 
-    return grid_I, grid_dimention
+    return grid_I, VecYZ(grid_dimention, grid_dimention)
     
     
     
@@ -105,26 +104,27 @@ class GridXRaySourceProfile():
         else:
             raise ValueError(f'Wrong parameters for "{source_type}" source type.' +
                              f'Should be {SOURCE_TYPE[source_type]["param_list"]}.')
-        self.center_index = (self.grid_dim - 1) // 2
+        # shifts are correct to +- 1/2 of a cell of the grid!!!
+        self.origin_index = VecYZ((self.grid_dim.y - 1) // 2, (self.grid_dim.z - 1) // 2)
         
-    def coord_to_index(self, x):
-        i = x / self.cell_length + self.center_index
+    def coord_to_index(self, r: VecYZ) -> VecYZ:
+        i = r / self.cell_length + self.origin_index
         return round(i)
     
-    def index_to_c_coord(self, i):
+    def index_to_c_coord(self, i: VecYZ) -> VecYZ:
         # center of the cell with index i
-        x = (i - self.center_index) * self.cell_length
-        return x
+        r = (i - self.origin_index) * self.cell_length
+        return r
 
-    def index_to_l_coord(self, i):
+    def index_to_l_coord(self, i: VecYZ) -> VecYZ:
         # the lower corner of the cell with index i
-        x = (i - self.center_index - 0.5) * self.cell_length
-        return x
+        r = (i - self.origin_index - VecYZ(0.5, 0.5)) * self.cell_length
+        return r
 
-    def index_to_u_coord(self, i):
+    def index_to_u_coord(self, i: VecYZ) -> VecYZ:
         # the upper corner of the cell with index i
-        x = (i - self.center_index + 0.5) * self.cell_length
-        return x
+        r = (i - self.origin_index + VecYZ(0.5, 0.5)) * self.cell_length
+        return r
     
     def show_grid(self):
         fig, ax = plt.subplots()
@@ -135,33 +135,28 @@ class GridXRaySourceProfile():
     
     def show_I(self, unit='mm'):
         if unit == 'mm':
-            scale_factor = 1.
+            unit_transform_factor = 1.
         elif unit == 'um':
-            scale_factor = 1000.
+            unit_transform_factor = 1000.
         else:
             raise ValueError(f'Unknown units for length: {unit}')
         fig, ax = plt.subplots()
         #TODO change when make it non-uniform and shifted!
-        x_range = np.linspace(self.index_to_c_coord(0), self.index_to_c_coord(self.grid_dim-1), self.grid_dim) * scale_factor
-        y_range = np.linspace(self.index_to_c_coord(0), self.index_to_c_coord(self.grid_dim-1), self.grid_dim) * scale_factor
-        cs = ax.pcolormesh(x_range, y_range, self.grid_I)
+        r_min = self.index_to_c_coord(VecYZ(0, 0))
+        r_max = self.index_to_c_coord(self.grid_dim - VecYZ(1, 1))
+        y_range = np.linspace(r_min.y, r_max.y, self.grid_dim.y) * unit_transform_factor
+        z_range = np.linspace(r_min.z, r_max.z, self.grid_dim.z) * unit_transform_factor
+        cs = ax.pcolormesh(y_range, z_range, self.grid_I)
         cbar = fig.colorbar(cs)
         plt.show()
 
     
 if __name__ == '__main__':
     test_source = GridXRaySourceProfile()
-    test_i = 17, 17 
-    lcu = ((test_source.index_to_l_coord(test_i[0]), test_source.index_to_l_coord(test_i[1]),),
-           (test_source.index_to_c_coord(test_i[0]), test_source.index_to_c_coord(test_i[1]),),
-           (test_source.index_to_u_coord(test_i[0]), test_source.index_to_u_coord(test_i[1]),),
-           )
-    print(f'Indexes {test_i} corresponds to coordinates of center ({lcu[1][0]:.3f},{lcu[1][0]:.3f})')
-    print(f' with the lower corner at ({lcu[0][0]:.3f},{lcu[0][0]:.3f}) and the upper one at ({lcu[2][0]:.3f},{lcu[2][0]:.3f})')
-    print(f'Their back-calculated indices are:')
-    for x, y in lcu:
-        print(f'({test_source.coord_to_index(x)},{test_source.coord_to_index(y)})', end='; ')
-    print('\nFinish!')
+    test_i = VecYZ(17, 17)
+    print(f'Indexes {test_i} corresponds to coordinates of center {test_source.index_to_c_coord(test_i)}')
+    print(f' with corners at:')
+    print(f' {test_source.index_to_l_coord(test_i)} and {test_source.index_to_u_coord(test_i)}')
     
     test_source.show_I('um')
         
