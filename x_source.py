@@ -1,22 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from collections import namedtuple
 
 from x_constants import PHASE_TO_MU
 
 
+#TODO make an object?
+tuple_xy = namedtuple('Tuple_2D', ['x', 'y']) 
 
-def cipg_set_int(source, Imax=1.8e6, sigma=0.055, sigma_cutoff=3., subbining=2):
-    #!!! change properties of the source !!!
+
+def cipg_set_int(cell_length=0.01, Imax=1.8e6, sigma=0.055, sigma_cutoff=3., subbining=2):
     '''
-    Calculate intensities for Central Isometric P??? Gaussian X-ray source
+    Calculate intensities for Central Isometric Parallel Gaussian X-ray source
      on a source grid.
-    Uses S.cell_length;
-    !!! Canges S.grid_I, S.grid_length, S.grid_dimention
      
     Parameters
     ----------
-    source : GridXRaySourceProfile
-        Entity of the GridXRaySourceProfile class to be initialized.
+    cell_length : float, optional
+        Units: mm. Length of a unit cell of the grid. The default is 0.01.
     Imax : float , optional
         Units: count. Amplitude of the I distribution. The default is 1.8e6.
     sigma : float, optional
@@ -28,13 +29,13 @@ def cipg_set_int(source, Imax=1.8e6, sigma=0.055, sigma_cutoff=3., subbining=2):
 
     Returns
     -------
-    float
+    tuple of grid_I, grid_dimention
         Integral intensity on the grid.
     '''
     #print(f'The source grid cell length {source.cell_length} mm')
     assert type(subbining) == int
     grid_length = 2 * sigma * sigma_cutoff
-    grid_dimention = int(grid_length / source.cell_length)
+    grid_dimention = int(grid_length / cell_length)
     # the grid must have odd number of cells in col/row
     grid_dimention += 1 + grid_dimention % 2
     #print(f'Grid dimentions {grid_dimention}x{grid_dimention}, the length is {grid_length:.3f} mm ({grid_length/sigma:.1f} sigma)')
@@ -47,7 +48,7 @@ def cipg_set_int(source, Imax=1.8e6, sigma=0.055, sigma_cutoff=3., subbining=2):
         result *= cell_len_sq
         return result
    
-    subcell_area = (source.cell_length / subbining)**2
+    subcell_area = (cell_length / subbining)**2
     _rsq_ij = lambda i, j: rsq_ij(i, j, i_centre=(subgrid_dimention - 1)/2, 
                                   cell_len_sq=subcell_area)
     
@@ -61,17 +62,15 @@ def cipg_set_int(source, Imax=1.8e6, sigma=0.055, sigma_cutoff=3., subbining=2):
     subgrid_I = np.reshape(subgrid_I, (subgrid_dimention, subgrid_dimention))
     #print(f'Generated subgrid of {subgrid_I.shape} with sum intensity {np.sum(subgrid_I):.3f}')
     
-    source.grid_I = np.array([np.sum(subgrid_I[i : i+subbining, j : j+subbining])
-                              for i in range(0, subgrid_dimention, subbining) 
-                              for j in range(0, subgrid_dimention, subbining)])
-    source.grid_I *= Imax
-    source.grid_I = np.reshape(source.grid_I, (grid_dimention, grid_dimention))
-    source.grid_len = grid_length
-    source.grid_dim = grid_dimention
+    grid_I = np.array([np.sum(subgrid_I[i : i+subbining, j : j+subbining])
+                       for i in range(0, subgrid_dimention, subbining) 
+                       for j in range(0, subgrid_dimention, subbining)])
+    grid_I *= Imax
+    grid_I = np.reshape(grid_I, (grid_dimention, grid_dimention))
     #print(f'Generated grid of {source.grid_I.shape} with sum intensity {np.sum(source.grid_I)}')
     #print('Grid of partial intensities:\n', source.grid_I)
 
-    return np.sum(subgrid_I)
+    return grid_I, grid_dimention
     
     
     
@@ -98,8 +97,7 @@ class GridXRaySourceProfile():
                  source_param={'Imax': 1.8e6, 'sigma':0.055, 'sigma_cutoff':3.}):
         if source_type not in SOURCE_TYPE:
             raise ValueError(f'Source type "{source_type}" not implemented.')
-        self.wavelength = wavelength
-        
+        self.wavelength = wavelength   
         self.cell_length = cell_len
         if grid_dim:
             # the grid size is defined via number of the grid cells
@@ -113,7 +111,8 @@ class GridXRaySourceProfile():
             # the grid dimentions are defined by source type
             if set(source_param.keys()).issubset(SOURCE_TYPE[source_type]['param_list']):
                 #!!! should set .grid_I, .grid_len, and .grid_dim properties
-                SOURCE_TYPE[source_type]['init_func'](self, **source_param)
+                self.grid_I, self.grid_dim =\
+                    SOURCE_TYPE[source_type]['init_func'](self.cell_length, **source_param)
                 self.type = source_type
             else:
                 raise ValueError(f'Wrong parameters for "{source_type}" source type.' +
