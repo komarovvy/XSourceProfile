@@ -82,7 +82,9 @@ class VecYZ():
     def __repr__(self):
         return f'VecYZ({self.y}, {self.z})'
     
-    def __str__(self):
+    def __str__(self, emph_int=True):
+        if isinstance(self.y, int) and isinstance(self.z, int):
+            return f'(i={self.y}, j={self.z})'
         return f'(y={self.y}, z={self.z})'
 
             
