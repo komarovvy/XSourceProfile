@@ -52,7 +52,7 @@ class VecYZ():
     Class of 2D yz vectors for operations with source and attenuator projections on "perpendicular-to-beam" plane
     '''
     def __init__(self, y, z):
-        assert type(y) == type(z) == float, 'Coordinates should be float!'
+        assert isinstance(y, (int, float)) and isinstance(z, (int, float)), 'Coordinates should be float!'
         self.y = y
         self.z = z
         
@@ -71,6 +71,13 @@ class VecYZ():
     def __truediv__(self, scale_factor: float):
         assert isinstance(scale_factor, float)
         return VecYZ(self.y / scale_factor, self.z / scale_factor)
+    
+    def __round__(self, n=0):
+        assert isinstance(n, int)
+        if n == 0:
+            return VecYZ(int(round(self.y, n)), int(round(self.z, n)))
+        else:
+            return VecYZ(round(self.y, n), round(self.z, n))
     
     def __repr__(self):
         return f'VecYZ({self.y}, {self.z})'
@@ -113,6 +120,7 @@ if __name__ == '__main__':
     print(yz_vec - VecYZ(1., 2.))
     print((yz_vec * 3.) / 1.5)
     print(yz_vec * 3.)
+    print(round(yz_vec))
     
     
     
