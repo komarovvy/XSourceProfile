@@ -28,7 +28,7 @@ class Vec3D():
         return self.coord[2]
 
     def __str__(self, prec=2):
-        return f"vector x, y, z = ({self.x:.{prec}f}, {self.y:.{prec}f}, {self.z:.{prec}f})"        
+        return f"vector x, y, z = ({self.x:.{prec}f}, {self.y:.{prec}f}, {self.z:.{prec}f})"
 
     def rot_euler(self, ax_seq=None, angles=None, in_degrees=True):
         if not (isinstance(ax_seq, str) and 3 >= len(ax_seq) >= 1):
@@ -42,7 +42,7 @@ class Vec3D():
         rot = R.from_euler(ax_seq, angles, degrees=in_degrees)
         
         return Vec3D(coord=rot.apply(self.coord))
-    
+
     @property
     def proj_yz(self):
         return self.y, self.z
@@ -70,47 +70,10 @@ if __name__ == '__main__':
     test_rect = RectYZ(0., 0., 1., 1.)
     print(test_rect)
     
-    test_vec = Vec3D(0., 1., 2.)
+    test_vec = Vec3D(0.3, 0., 0.)
     print(test_vec)
     
     rot_vec = test_vec.rot_euler('xyz', [90., 45., 45.])
     print(rot_vec)
     print(f' which yz-projection is {rot_vec.proj_yz}')
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     

@@ -39,12 +39,13 @@ def generate_T_mask(dim, step, mu, R):
                                            for j in range(dim)])
     
     return np.exp(-mask_ch * mu).reshape((dim, dim))
-    
+# def shift (T_mask, shift):
+#     T_mask
 
 class BallAbsorber():
     # all distances in mm, angles in radians!
-    def __init__(self, shift=(0.e-3, 0.e-3, 0.e-3), diameter=300.e-3, 
-                       mu=None, material='Fe', wavelength='MoKaw', 
+    def __init__(self, shift=(0.e-3, 0.e-3, 0.e-3), diameter=300.e-3,
+                       mu=None, material='Fe', wavelength='MoKaw',
                        mask_step=1.e-3):
         if type(shift) == tuple and len(shift) == 3:
             self.shift = shift
@@ -71,12 +72,13 @@ class BallAbsorber():
         
         self.mask_step = mask_step
         mask_dim = round(2 * self.radius / self.mask_step)
-        self.mask_dim = mask_dim + mask_dim % 2
+        self.mask_dim = mask_dim + 1
+        #self.mask_dim = mask_dim + mask_dim % 2
         
         if self.mu:
-            self.T_mask = generate_T_mask(dim=self.mask_dim, step=self.mask_step, 
+            self.T_mask = generate_T_mask(dim=self.mask_dim, step=self.mask_step,
                                           mu=self.mu, R=self.radius)
-        
+
     def __str__(self):
         info = f"Material: {self.material}, wavelength: {self.wavelength}, mu[mm-1] = {self.mu:.2f}"
         info += f"\nmask array dimentions: {self.mask_dim} x {self.mask_dim}, mask step[mm]: {self.mask_step}"
@@ -84,11 +86,11 @@ class BallAbsorber():
         return info
 
     def calc_T_integral(self, rect=RectYZ(yl=0., zl=0., yu=0.1, zu=0.1)):
-        pass        
+        pass#
 
 
 if __name__ == '__main__':
-    test_ball = BallAbsorber(diameter=380.e-3)
+    test_ball = BallAbsorber()
     print(test_ball)
     # print("Transmission mask slice:\n", test_ball.T_mask[::30,::30])
     # print("Transmission log-mask slice:\n", np.log(test_ball.T_mask[::30,::30]))
@@ -96,4 +98,3 @@ if __name__ == '__main__':
     cs = ax.pcolormesh(np.log(test_ball.T_mask))
     cbar = fig.colorbar(cs)
     plt.show()
-    
