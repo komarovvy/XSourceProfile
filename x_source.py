@@ -91,32 +91,20 @@ SOURCE_TYPE = {
 
 
 class GridXRaySourceProfile():
-    def __init__(self, wavelength='MoKaw', 
-                 cell_len=0.01, grid_len=None, grid_dim=None,
-                 source_type='CIPG', 
+    def __init__(self, wavelength='MoKaw', cell_len=0.01, source_type='CIPG', 
                  source_param={'Imax': 1.8e6, 'sigma':0.055, 'sigma_cutoff':3.}):
         if source_type not in SOURCE_TYPE:
             raise ValueError(f'Source type "{source_type}" not implemented.')
         self.wavelength = wavelength   
         self.cell_length = cell_len
-        if grid_dim:
-            # the grid size is defined via number of the grid cells
-            # ???
-            pass
-        elif grid_len:
-            # the grid dimentions are defined via size of the whole grid
-            # ???
-            pass
+        if set(source_param.keys()).issubset(SOURCE_TYPE[source_type]['param_list']):
+            #!!! should set .grid_I, .grid_len, and .grid_dim properties
+            self.grid_I, self.grid_dim =\
+                SOURCE_TYPE[source_type]['init_func'](self.cell_length, **source_param)
+            self.type = source_type
         else:
-            # the grid dimentions are defined by source type
-            if set(source_param.keys()).issubset(SOURCE_TYPE[source_type]['param_list']):
-                #!!! should set .grid_I, .grid_len, and .grid_dim properties
-                self.grid_I, self.grid_dim =\
-                    SOURCE_TYPE[source_type]['init_func'](self.cell_length, **source_param)
-                self.type = source_type
-            else:
-                raise ValueError(f'Wrong parameters for "{source_type}" source type.' +
-                                 f'Should be {SOURCE_TYPE[source_type]["param_list"]}.')
+            raise ValueError(f'Wrong parameters for "{source_type}" source type.' +
+                             f'Should be {SOURCE_TYPE[source_type]["param_list"]}.')
         self.center_index = (self.grid_dim - 1) // 2
         
     def coord_to_index(self, x):
