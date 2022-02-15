@@ -40,11 +40,53 @@ class Vec3D():
             raise(ValueError('Lengthes of axis sequence and angles list must be the same.'))
         rot = R.from_euler(ax_seq, angles, degrees=in_degrees)
         
-        return Vec3D(coord=rot.apply(self.coord))
+        return Vec3D(vec_xyz=rot.apply(self.coord))
     
     @property
     def proj_yz(self):
         return VecYZ(self.y, self.z)
+    
+
+class EulerAng():
+    def __init__(self, om_phi_chi=None, unit='deg'):
+        if om_phi_chi is None: 
+            raise ValueError('Three Euler angles (omega, phi and chi) must be specified as a list.')
+        elif all(isinstance(val, (int, float)) for val in om_phi_chi) and\
+             len(om_phi_chi) == 3:
+            if unit == 'rad':
+                self.angles = tuple(om_phi_chi)
+            elif unit == 'deg':
+                self.angles = tuple((np.radians(ang) for ang in om_phi_chi))
+        else:
+            raise ValueError('Euler angles (omega, phi and chi) must be provided as a list of floats of length 3.')
+    
+    @property
+    def om(self):
+        return self.angles[0]
+    
+    @property
+    def phi(self):
+        return self.angles[1]
+
+    @property
+    def chi(self):
+        return self.angles[2]
+    
+    @property
+    def om_deg(self):
+        return np.degrees(self.angles[0])
+    
+    @property
+    def phi_deg(self):
+        return np.degrees(self.angles[1])
+
+    @property
+    def chi_deg(self):
+        return np.degrees(self.angles[2])
+    
+    def __str__(self):
+        return f'(om={self.om_deg:.3f}, phi={self.phi_deg:.3f}, chi={self.chi_deg:.3f})'
+
 
 class VecYZ():
     '''
@@ -109,7 +151,7 @@ if __name__ == '__main__':
     test_rect = RectYZ(0., 0., 1., 1.)
     print(test_rect)
     
-    test_vec = Vec3D(0., 1., 2.)
+    test_vec = Vec3D((0., 1., 2.))
     print(test_vec)
     
     rot_vec = test_vec.rot_euler('xyz', [90., 45., 45.])
