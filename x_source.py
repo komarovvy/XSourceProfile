@@ -112,7 +112,7 @@ class GridXRaySourceProfile():
         else:
             # the grid dimentions are defined by source type
             if set(source_param.keys()).issubset(SOURCE_TYPE[source_type]['param_list']):
-                # should set .grid_I, .grid_len, and .grid_dim properties
+                #!!! should set .grid_I, .grid_len, and .grid_dim properties
                 SOURCE_TYPE[source_type]['init_func'](self, **source_param)
                 self.type = source_type
             else:
@@ -138,8 +138,29 @@ class GridXRaySourceProfile():
         # the upper corner of the cell with index i
         x = (i - self.center_index + 0.5) * self.cell_length
         return x
-        
     
+    def show_grid(self):
+        fig, ax = plt.subplots()
+        cs = ax.pcolormesh(self.grid_I)
+        cbar = fig.colorbar(cs)
+        
+        plt.show()
+    
+    def show_I(self, unit='mm'):
+        if unit == 'mm':
+            scale_factor = 1.
+        elif unit == 'um':
+            scale_factor = 1000.
+        else:
+            raise ValueError(f'Unknown units for length: {unit}')
+        fig, ax = plt.subplots()
+        #TODO change when make it non-uniform and shifted!
+        x_range = np.linspace(self.index_to_c_coord(0), self.index_to_c_coord(self.grid_dim-1), self.grid_dim) * scale_factor
+        y_range = np.linspace(self.index_to_c_coord(0), self.index_to_c_coord(self.grid_dim-1), self.grid_dim) * scale_factor
+        cs = ax.pcolormesh(x_range, y_range, self.grid_I)
+        cbar = fig.colorbar(cs)
+        plt.show()
+
     
 if __name__ == '__main__':
     test_source = GridXRaySourceProfile()
@@ -154,4 +175,6 @@ if __name__ == '__main__':
     for x, y in lcu:
         print(f'({test_source.coord_to_index(x)},{test_source.coord_to_index(y)})', end='; ')
     print('\nFinish!')
+    
+    test_source.show_I('um')
         
