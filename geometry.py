@@ -64,6 +64,14 @@ class VecYZ():
         assert isinstance(otherYZ, VecYZ)
         return VecYZ(self.y - otherYZ.y, self.z - otherYZ.z)
     
+    def __mul__(self, scale_factor: float):
+        assert isinstance(scale_factor, float)
+        return VecYZ(self.y * scale_factor, self.z * scale_factor)
+    
+    def __truediv__(self, scale_factor: float):
+        assert isinstance(scale_factor, float)
+        return VecYZ(self.y / scale_factor, self.z / scale_factor)
+    
     def __repr__(self):
         return f'VecYZ({self.y}, {self.z})'
     
@@ -103,8 +111,8 @@ if __name__ == '__main__':
     yz_vec = VecYZ(1., 2.)
     print(yz_vec + VecYZ(1., 2.))
     print(yz_vec - VecYZ(1., 2.))
-    
-    
+    print((yz_vec * 3.) / 1.5)
+    print(yz_vec * 3.)
     
     
     
