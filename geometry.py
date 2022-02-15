@@ -47,6 +47,29 @@ class Vec3D():
     def proj_yz(self):
         return self.y, self.z
 
+class VecYZ():
+    '''
+    Class of 2D yz vectors for operations with source and attenuator projections on "perpendicular-to-beam" plane
+    '''
+    def __init__(self, y, z):
+        assert type(y) == type(z) == float, 'Coordinates should be float!'
+        self.y = y
+        self.z = z
+        
+    def __add__(self, otherYZ):
+        assert isinstance(otherYZ, VecYZ)
+        return VecYZ(self.y + otherYZ.y, self.z + otherYZ.z)
+    
+    def __sub__(self, otherYZ):
+        assert isinstance(otherYZ, VecYZ)
+        return VecYZ(self.y - otherYZ.y, self.z - otherYZ.z)
+    
+    def __repr__(self):
+        return f'VecYZ({self.y}, {self.z})'
+    
+    def __str__(self):
+        return f'(y={self.y}, z={self.z})'
+
             
 class RectYZ():
     # yl=0., zl=0., yu=0.1, zu=0.1
@@ -76,6 +99,10 @@ if __name__ == '__main__':
     rot_vec = test_vec.rot_euler('xyz', [90., 45., 45.])
     print(rot_vec)
     print(f' which yz-projection is {rot_vec.proj_yz}')
+    
+    yz_vec = VecYZ(1., 2.)
+    print(yz_vec + VecYZ(1., 2.))
+    print(yz_vec - VecYZ(1., 2.))
     
     
     
