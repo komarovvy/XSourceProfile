@@ -6,27 +6,30 @@ from x_constants import PHASE_TO_MU
 
 
 def cipg_set_int(source, Imax=1.8e6, sigma=0.055, sigma_cutoff=3., subbining=2):
+    #!!! change properties of the source !!!
     '''
     Calculate intensities for Central Isometric P??? Gaussian X-ray source
      on a source grid.
+    Uses S.cell_length;
+    !!! Canges S.grid_I, S.grid_length, S.grid_dimention
      
     Parameters
     ----------
-    source : TYPE
-        DESCRIPTION.
-    Imax : TYPE, optional
-        DESCRIPTION. The default is 1.8e6.
-    sigma : TYPE, optional
-        DESCRIPTION. The default is 0.055.
-    sigma_cutoff : TYPE, optional
-        DESCRIPTION. The default is 3..
-    subbining : TYPE, optional
-        DESCRIPTION. The default is 2.
+    source : GridXRaySourceProfile
+        Entity of the GridXRaySourceProfile class to be initialized.
+    Imax : float , optional
+        Units: count. Amplitude of the I distribution. The default is 1.8e6.
+    sigma : float, optional
+        Units: mm. Spread of the I distribution. The default is 0.055.
+    sigma_cutoff : float, optional
+        Units: pcs, to define a size of non-zero I. The default is 3.
+    subbining : int, optional
+        Units: pcs, subdivision of the grid cells for increasig of I precision. The default is 2.
 
     Returns
     -------
-    TYPE
-        DESCRIPTION.
+    float
+        Integral intensity on the grid.
     '''
     #print(f'The source grid cell length {source.cell_length} mm')
     assert type(subbining) == int
@@ -74,6 +77,7 @@ def cipg_set_int(source, Imax=1.8e6, sigma=0.055, sigma_cutoff=3., subbining=2):
     
 def table_set_int(source, Iij_2D_arr=(0.,0.,0., 0.,1.8e6,0., 0.,0.,0.)):
     print(f'{SOURCE_TYPE["Tab"]["description"]} source type is not implenented...')
+
 
 SOURCE_TYPE = {
     'CIPG': {'description': 'Centered isotropic parallel Gaussian', 
