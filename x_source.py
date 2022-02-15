@@ -90,7 +90,8 @@ SOURCE_TYPE = {
 
 
 class GridXRaySourceProfile():
-    def __init__(self, wavelength='MoKaw', cell_len=0.01, source_type='CIPG', 
+    def __init__(self, wavelength='MoKaw', cell_len=0.01, center_shift=(0., 0.),
+                 source_type='CIPG', 
                  source_param={'Imax': 1.8e6, 'sigma':0.055, 'sigma_cutoff':3.}):
         if source_type not in SOURCE_TYPE:
             raise ValueError(f'Source type "{source_type}" not implemented.')
@@ -105,7 +106,11 @@ class GridXRaySourceProfile():
             raise ValueError(f'Wrong parameters for "{source_type}" source type.' +
                              f'Should be {SOURCE_TYPE[source_type]["param_list"]}.')
         # shifts are correct to +- 1/2 of a cell of the grid!!!
-        self.origin_index = VecYZ((self.grid_dim.y - 1) // 2, (self.grid_dim.z - 1) // 2)
+        if len(center_shift) != 2 or not all([isinstance(i, (int,float)) for i in center_shift]):
+            raise ValueError(f'Center shift should be a pair of floats (yz vector in mm)')
+        shift_indeces = VecYZ(*center_shift) / self.cell_length
+        self.origin_index = round((self.grid_dim - VecYZ(1, 1)) / 2. - shift_indeces)
+        #self.origin_index = VecYZ((self.grid_dim.y - 1) // 2, (self.grid_dim.z - 1) // 2)
         
     def coord_to_index(self, r: VecYZ) -> VecYZ:
         i = r / self.cell_length + self.origin_index
@@ -144,8 +149,8 @@ class GridXRaySourceProfile():
         ax.invert_xaxis()
         ax.set_aspect('equal', adjustable='box')
         #TODO change when make it non-uniform and shifted!
-        r_min = self.index_to_c_coord(VecYZ(-0.5, -0.5))
-        r_max = self.index_to_c_coord(self.grid_dim - VecYZ(0.5, 0.5))
+        r_min = self.index_to_l_coord(VecYZ(0, 0))
+        r_max = self.index_to_u_coord(self.grid_dim - VecYZ(1, 1))
         y_range = np.linspace(r_min.y, r_max.y, self.grid_dim.y + 1) * unit_transform_factor
         z_range = np.linspace(r_min.z, r_max.z, self.grid_dim.z + 1) * unit_transform_factor
         cs = ax.pcolormesh(y_range, z_range, self.grid_I)
@@ -157,12 +162,12 @@ class GridXRaySourceProfile():
 
     
 if __name__ == '__main__':
-    test_source = GridXRaySourceProfile(cell_len=0.02, source_param={'Imax': 100., 'sigma':0.06, 'sigma_cutoff':1.})
-    test_i = VecYZ(17, 17)
+    test_source = GridXRaySourceProfile(cell_len=0.01, center_shift=(-0.10, 0.08), 
+                                        source_param={'Imax': 100., 'sigma':0.06, 'sigma_cutoff':3.})
+    test_i = VecYZ(18, 18)
     print(f'Indexes {test_i} corresponds to coordinates of center {test_source.index_to_c_coord(test_i)}')
     print(f' with corners at:')
     print(f' {test_source.index_to_l_coord(test_i)} and {test_source.index_to_u_coord(test_i)}')
     
-    #test_source.show_grid()
     test_source.show_I('um')
         
