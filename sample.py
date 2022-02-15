@@ -20,6 +20,7 @@ def calc_mu(material, wavelength):
 
 #TODO check the disagreement between Py and Excel transmissions!!!
 def generate_T_mask(dim, step, mu, R):
+    #TODO add binning to get more reliable T values
     print("dim, step, mu, R", dim, step, mu, R)
     
     Rsq = R ** 2
@@ -45,11 +46,13 @@ class BallAbsorber():
     # all distances in mm, angles in radians!
     def __init__(self, shift=(0.e-3, 0.e-3, 0.e-3), diameter=300.e-3, 
                        mu=None, material='Fe', wavelength='MoKaw', 
-                       mask_step=1.e-3):
-        if type(shift) == tuple and len(shift) == 3:
+                       mask_step=10.e-3):
+        if all(isinstance(val, (int, float)) for val in shift) and\
+           len(shift) == 3:
             self.shift = Vec3D(shift)
+            self.rot_shift = None
         else:
-            raise ValueError('Sample shift must be a tuple of the length 3')
+            raise ValueError('Sample shift must be a tuple of floats of the length 3')
         #TODO add checkings
         if type(diameter) is int or type(diameter) is float:
             if diameter > 0.:
@@ -84,7 +87,54 @@ class BallAbsorber():
         return info
 
     def calc_T_integral(self, rect=RectYZ(yl=0., zl=0., yu=0.1, zu=0.1)):
-        pass        
+        pass      
+    
+    def rotate_euler(self, om, phi, chi):
+        #calc self.rot_shift
+        pass
+    
+    #TODO make i<->r transforms using self.rot_shift value !!!
+    # def coord_to_index(self, r: VecYZ) -> VecYZ:
+    #     i = r / self.cell_length + self.origin_index
+    #     return round(i)
+    
+    # def index_to_c_coord(self, i: VecYZ) -> VecYZ:
+    #     # center of the cell with index i
+    #     r = (i - self.origin_index) * self.cell_length
+    #     return r
+
+    # def index_to_l_coord(self, i: VecYZ) -> VecYZ:
+    #     # the lower corner of the cell with index i
+    #     r = (i - self.origin_index - VecYZ(0.5, 0.5)) * self.cell_length
+    #     return r
+
+    # def index_to_u_coord(self, i: VecYZ) -> VecYZ:
+    #     # the upper corner of the cell with index i
+    #     r = (i - self.origin_index + VecYZ(0.5, 0.5)) * self.cell_length
+    #     return r
+    
+    # def show_T(self, unit='mm'):
+    #     if unit == 'mm':
+    #         unit_transform_factor = 1.
+    #     elif unit == 'um':
+    #         unit_transform_factor = 1000.
+    #     else:
+    #         raise ValueError(f'Unknown units for length: {unit}')
+    #     fig, ax = plt.subplots()
+    #     ax.invert_xaxis()
+    #     ax.set_aspect('equal', adjustable='box')
+    #     #TODO change when make it non-uniform and shifted!
+    #     r_min = self.index_to_l_coord(VecYZ(0, 0))
+    #     r_max = self.index_to_u_coord(self.grid_dim - VecYZ(1, 1))
+    #     y_range = np.linspace(r_min.y, r_max.y, self.grid_dim.y + 1) * unit_transform_factor
+    #     z_range = np.linspace(r_min.z, r_max.z, self.grid_dim.z + 1) * unit_transform_factor
+    #     cs = ax.pcolormesh(y_range, z_range, self.grid_I)
+    #     plt.scatter(0., 0., color='red', marker= '+')
+    #     plt.scatter(0., 100., color='red', marker= '^')
+    #     plt.scatter(100., 0., color='red', marker= '<')
+    #     cbar = fig.colorbar(cs)
+    #     plt.show()
+    
 
 
 if __name__ == '__main__':
